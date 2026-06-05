@@ -10,12 +10,13 @@ export default function WebRTCCall({ remoteStream, callState, onEnd, otherUser }
   }, [remoteStream]);
 
   const stateLabel = {
-    idle: 'Preparing...',
-    calling: 'Calling...',
-    ringing: 'Ringing...',
-    connected: 'Connected',
-    ended: 'Call ended',
-  }[callState] || callState;
+    idle: '準備中...',
+    ringing: '等待對方接聽...',
+    calling: '連線中 (offer sent)...',
+    connecting: '等待 offer...',
+    connected: '通話中',
+    ended: '通話已結束',
+  }[callState] ?? callState;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 gap-8">

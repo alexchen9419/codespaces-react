@@ -13,6 +13,8 @@ const io = new Server(httpServer, {
 
 // userId (string) -> socketId
 const onlineUsers = new Map();
+// socketId -> userId (for reverse lookup)
+const socketToUser = new Map();
 
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
@@ -20,6 +22,7 @@ io.on('connection', (socket) => {
   socket.on('register', (userId) => {
     const uid = String(userId);
     onlineUsers.set(uid, socket.id);
+    socketToUser.set(socket.id, uid);
     console.log(`User ${uid} registered as ${socket.id}`);
   });
 
@@ -31,16 +34,60 @@ io.on('connection', (socket) => {
     }
   });
 
-  // WebRTC signaling
+  // Phase 1: caller rings receiver
+  socket.on('call_ring', ({ to, fromUsername }) => {
+    const targetSocket = onlineUsers.get(String(to));
+    const fromUserId = socketToUser.get(socket.id);
+    if (targetSocket && fromUserId) {
+      io.to(targetSocket).emit('call_incoming', { from: fromUserId, fromUsername });
+    }
+  });
+
+  // Receiver accepted — tell caller
+  socket.on('call_accept', ({ to }) => {
+    const targetSocket = onlineUsers.get(String(to));
+    if (targetSocket) {
+      io.to(targetSocket).emit('call_accepted');
+    }
+  });
+
+  // Receiver's useWebRTC is ready for the offer
+  socket.on('call_ready', ({ to }) => {
+    const targetSocket = onlineUsers.get(String(to));
+    if (targetSocket) {
+      io.to(targetSocket).emit('call_ready');
+    }
+  });
+
+  // Receiver rejected
+  socket.on('call_reject', ({ to }) => {
+    const targetSocket = onlineUsers.get(String(to));
+    if (targetSocket) {
+      io.to(targetSocket).emit('call_rejected');
+    }
+  });
+
+  // Either side ended the call
+  socket.on('call_end', ({ to }) => {
+    const targetSocket = onlineUsers.get(String(to));
+    if (targetSocket) {
+      io.to(targetSocket).emit('call_ended');
+    }
+  });
+
+  // WebRTC signaling (all use userId for routing)
   socket.on('webrtc_offer', ({ to, offer }) => {
     const targetSocket = onlineUsers.get(String(to));
     if (targetSocket) {
-      io.to(targetSocket).emit('webrtc_offer', { from: socket.id, offer });
+      io.to(targetSocket).emit('webrtc_offer', { offer });
     }
   });
 
   socket.on('webrtc_answer', ({ to, answer }) => {
-    io.to(to).emit('webrtc_answer', { answer });
+    const targetSocket = onlineUsers.get(String(to));
+    if (targetSocket) {
+      io.to(targetSocket).emit('webrtc_answer', { answer });
+    }
   });
 
   socket.on('webrtc_ice', ({ to, candidate }) => {
@@ -59,12 +106,11 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    for (const [uid, sid] of onlineUsers.entries()) {
-      if (sid === socket.id) {
-        onlineUsers.delete(uid);
-        console.log(`User ${uid} disconnected`);
-        break;
-      }
+    const uid = socketToUser.get(socket.id);
+    if (uid) {
+      onlineUsers.delete(uid);
+      socketToUser.delete(socket.id);
+      console.log(`User ${uid} disconnected`);
     }
   });
 });

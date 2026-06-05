@@ -20,8 +20,12 @@ export function useSocket() {
     socketInstance.emit('register', user.id);
     socketRef.current = socketInstance;
 
+    // Re-register whenever the socket reconnects (e.g. after signaling server restart)
+    const onReconnect = () => socketInstance.emit('register', user.id);
+    socketInstance.on('connect', onReconnect);
+
     return () => {
-      // Keep connection alive across page navigations
+      socketInstance?.off('connect', onReconnect);
     };
   }, [user]);
 

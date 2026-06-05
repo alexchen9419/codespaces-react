@@ -36,7 +36,7 @@ if ($file['size'] > 10 * 1024 * 1024) {
 }
 
 $filename = bin2hex(random_bytes(16)) . '.webm';
-$destDir  = __DIR__ . '/../../../uploads/voices/';
+$destDir  = __DIR__ . '/../../uploads/voices/';
 if (!is_dir($destDir)) {
     mkdir($destDir, 0755, true);
 }

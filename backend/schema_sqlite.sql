@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS messages (
   id INTEGER PRIMARY KEY,
   sender_id INTEGER NOT NULL,
   receiver_id INTEGER NOT NULL,
-  type TEXT DEFAULT 'text' CHECK(type IN ('text', 'voice')),
+  type TEXT DEFAULT 'text' CHECK(type IN ('text', 'voice', 'call')),
   body TEXT,
   file_path TEXT,
   duration_seconds INTEGER,

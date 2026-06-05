@@ -82,6 +82,13 @@ export default function ChatPage() {
 
   const timeStr = (ts) => new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+  const fmtDuration = (s) => {
+    if (!s || s < 1) return '< 1 秒';
+    if (s < 60) return `${s} 秒`;
+    const m = Math.floor(s / 60), sec = s % 60;
+    return sec > 0 ? `${m} 分 ${sec} 秒` : `${m} 分`;
+  };
+
   return (
     <Layout>
       {/* Header */}
@@ -111,6 +118,26 @@ export default function ChatPage() {
         ) : (
           messages.map((m) => {
             const isMe = m.sender_id === user.id;
+
+            // Call record — centred system message
+            if (m.type === 'call') {
+              const completed = m.body === 'completed';
+              return (
+                <div key={m.id} className="flex justify-center">
+                  <div className="inline-flex items-center gap-1.5 bg-gray-800 border border-gray-700 rounded-full px-4 py-1.5 text-xs text-gray-400">
+                    <span>{completed ? '📞' : '📵'}</span>
+                    <span>
+                      {isMe ? '你' : m.username}
+                      {completed
+                        ? ` 通話 ${fmtDuration(m.duration_seconds)}`
+                        : ' 通話未接通'}
+                    </span>
+                    <span className="text-gray-600">· {timeStr(m.sent_at)}</span>
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <div key={m.id} className={`flex items-end gap-2 ${isMe ? 'flex-row-reverse' : ''}`}>
                 {!isMe && <Avatar src={m.avatar_path} name={m.username} />}

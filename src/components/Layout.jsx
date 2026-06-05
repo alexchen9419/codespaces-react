@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import NotifBadge from './NotifBadge';
+import IncomingCall from './IncomingCall';
 
 const navItems = [
   { to: '/', label: 'Feed', icon: '🏠' },
@@ -20,6 +21,7 @@ export default function Layout({ children }) {
 
   return (
     <div className="flex min-h-screen bg-gray-900 text-white">
+      <IncomingCall />
       {/* Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-gray-800 border-r border-gray-700 p-4 fixed top-0 left-0 h-full z-40">
         <div className="mb-8 px-2">

@@ -16,6 +16,14 @@ export const apiSendMessage = (receiver_id, body) =>
     body: JSON.stringify({ receiver_id, body }),
   }).then((r) => r.json());
 
+export const apiLogCall = (receiver_id, duration, status) =>
+  fetch(`${BASE}/call.php`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ receiver_id, duration, status }),
+  }).then((r) => r.json());
+
 export const apiSendVoice = (receiver_id, blob, duration) => {
   const form = new FormData();
   form.append('receiver_id', receiver_id);

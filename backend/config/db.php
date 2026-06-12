@@ -13,6 +13,9 @@ try {
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     $pdo->exec('PRAGMA foreign_keys = ON');
     $pdo->exec('PRAGMA journal_mode = WAL');
+    $pdo->exec('PRAGMA synchronous = NORMAL');   // WAL 下安全且更快（預設 FULL）
+    $pdo->exec('PRAGMA cache_size = -32000');    // 32 MB page cache
+    $pdo->exec('PRAGMA temp_store = MEMORY');    // 暫存表放記憶體
 
     if ($isNew) {
         $schema = file_get_contents(__DIR__ . '/../schema_sqlite.sql');

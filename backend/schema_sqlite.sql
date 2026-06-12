@@ -71,3 +71,35 @@ CREATE TABLE IF NOT EXISTS notifications (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS groups (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  avatar_path TEXT,
+  created_by INTEGER NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS group_members (
+  id INTEGER PRIMARY KEY,
+  group_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE(group_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS group_messages (
+  id INTEGER PRIMARY KEY,
+  group_id INTEGER NOT NULL,
+  sender_id INTEGER NOT NULL,
+  type TEXT DEFAULT 'text' CHECK(type IN ('text', 'voice')),
+  body TEXT,
+  file_path TEXT,
+  duration_seconds INTEGER,
+  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
+);

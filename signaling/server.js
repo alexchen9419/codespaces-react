@@ -97,6 +97,15 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Group chat
+  socket.on('join_group', (groupId) => {
+    socket.join('group_' + groupId);
+  });
+
+  socket.on('send_group_message', ({ groupId, message }) => {
+    socket.to('group_' + groupId).emit('group_message', message);
+  });
+
   // Generic notification push
   socket.on('notify', ({ to, notification }) => {
     const targetSocket = onlineUsers.get(String(to));

@@ -39,6 +39,12 @@ export default function NotifBadge() {
     setNotifs((prev) => prev.map((n) => ({ ...n, is_read: 1 })));
   };
 
+  const toggleOpen = () => {
+    const next = !open;
+    setOpen(next);
+    if (next && unread > 0) markAll();
+  };
+
   const typeLabel = (t) => {
     if (t === 'friend_request') return 'sent you a friend request';
     if (t === 'message') return 'sent you a message';
@@ -50,7 +56,7 @@ export default function NotifBadge() {
   return (
     <div className="relative" ref={dropRef}>
       <button
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggleOpen}
         className="relative p-2 rounded-lg hover:bg-gray-700 transition-colors"
       >
         <span className="text-xl">🔔</span>

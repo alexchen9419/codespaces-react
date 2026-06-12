@@ -9,6 +9,7 @@ import InboxPage from './pages/InboxPage';
 import ChatPage from './pages/ChatPage';
 import CallPage from './pages/CallPage';
 import ProfilePage from './pages/ProfilePage';
+import GroupChatPage from './pages/GroupChatPage';
 
 export default function App() {
   return (
@@ -54,6 +55,14 @@ export default function App() {
             element={
               <AuthGuard>
                 <CallPage />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/group/:groupId"
+            element={
+              <AuthGuard>
+                <GroupChatPage />
               </AuthGuard>
             }
           />
